@@ -1,0 +1,20 @@
+{
+  "name": "GO TAXI SERVICES Admin",
+  "short_name": "GoTaxiAdmin",
+  "start_url": "admin.html",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#1e88e5",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
