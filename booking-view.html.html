@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GO TAXI SERVICES – Booking View</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#f4f6f8;padding:10px}
+h2{text-align:center;color:#1e88e5;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{border:1px solid #ccc;padding:6px;font-size:13px;text-align:left}
+th{background:#1e88e5;color:#fff}
+button{padding:4px 6px;font-size:12px;border:none;border-radius:4px;cursor:pointer;margin:2px}
+.c{background:#25D366;color:#fff}
+.d{background:#ff9800;color:#fff}
+</style>
+</head>
+
+<body>
+
+<h2>📋 ALL BOOKINGS</h2>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Trip</th>
+<th>Date</th>
+<th>Customer</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+
+<script>
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwM0voS_X939uEw6chWaD-md7_RHfgqtEx9REMAgNIqveWP0r9kp8nMnDi_05Z32Ed0/exec";
+let DATA = [];
+
+function cleanNumber(n){
+  if(!n) return "";
+  n = n.replace(/\D/g,""); // Remove non-digit
+  if(n.length === 10) n = "91"+n; // Add +91
+  return n;
+}
+
+fetch(SHEET_URL)
+.then(res=>res.json())
+.then(rows=>{
+ DATA = rows.reverse();
+ const tbody = document.getElementById("list");
+ let html = "";
+ DATA.forEach((x,i)=>{
+   const tripId = x["trip Id"] || x.tripId || "N/A";
+   const tripType = x.tripType || x["tripType"] || "";
+   const dateTime = x.tripDateTime || x["tripDateTime"] || "";
+   const customerName = x["customer Name"] || x.customerName || "";
+   html += `<tr>
+     <td>${tripId}</td>
+     <td>${tripType}</td>
+     <td>${dateTime}</td>
+     <td>${customerName}</td>
+     <td>
+       <button class="c" onclick="shareCustomer(${i})">Customer</button>
+       <button class="d" onclick="shareDriver(${i})">Driver</button>
+     </td>
+   </tr>`;
+ });
+ tbody.innerHTML = html;
+});
+
+function shareCustomer(i){
+  const x = DATA[i];
+  const phone = cleanNumber(x.customerPhone || x["customerPhone"]);
+  if(!phone){ alert("Customer phone missing for Booking ID: "+(x["trip Id"]||x.tripId)); return; }
+
+  const msg = `GO TAXI SERVICES
+Booking ID: ${x["trip Id"]||x.tripId}
+Cab: ${x.cabType||x["cabType"]} ${x.cabDetails||x["cabDetails"]}
+Driver: ${x.driverName||x["driverName"]} (${x.driverPhone||x["driverPhone"]})
+Pickup: ${x.pickup||""}
+Drop: ${x.drop||""}
+Fare: ₹${x["total Amount"]||x.totalAmount||0}
+
+Contact: 8434143546
+https://gotaxiservices.com
+Map: https://share.google/vI2VbDezpUTvdtzs3
+Review: https://g.page/r/CbVg3mitMnAEEBM/review`;
+
+  // Use api.whatsapp.com to ensure mobile+desktop works
+  window.open("https://api.whatsapp.com/send?phone="+phone+"&text="+encodeURIComponent(msg));
+}
+
+function shareDriver(i){
+  const x = DATA[i];
+  const phone = cleanNumber(x.driverPhone || x["driverPhone"]);
+  if(!phone){ alert("Driver phone missing for Booking ID: "+(x["trip Id"]||x.tripId)); return; }
+
+  const msg = `GO TAXI SERVICES
+Booking ID: ${x["trip Id"]||x.tripId}
+Customer: ${x["customer Name"]||x.customerName} (${x.customerPhone||x["customerPhone"]})
+Pickup: ${x.pickup||""}
+Drop: ${x.drop||""}
+Amount: ₹${x["total Amount"]||x.totalAmount||0}`;
+
+  window.open("https://api.whatsapp.com/send?phone="+phone+"&text="+encodeURIComponent(msg));
+}
+</script>
+
+</body>
+</html>
